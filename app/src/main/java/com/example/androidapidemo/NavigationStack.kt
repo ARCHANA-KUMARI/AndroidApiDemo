@@ -1,30 +1,33 @@
 package com.example.androidapidemo
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 
 @Composable
-fun NavigationStack() {
-    val navController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = AndroidApiDemoScreen.Main.route) {
-        composable(route = AndroidApiDemoScreen.Main.route) {
-            MainScreen(navController = navController)
-        }
-        composable(
-            route = AndroidApiDemoScreen.Detail.route + "?text={text}",
-            arguments = listOf(
-                navArgument("text") {
-                    type = NavType.StringType
-                    nullable = true
+fun NavigationStack(
+    modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Main,
+        modifier = modifier,
+    ) {
+        composable<Main> {
+            MainScreen(
+                onNext = { text ->
+                    navController.navigate(Detail(text)) {
+                        launchSingleTop = true
+                    }
                 }
             )
-        ) {
-            DetailScreen(text = it.arguments?.getString("text"))
+        }
+        composable<Detail> { entry ->
+            DetailScreen(text = entry.toRoute<Detail>().text)
         }
     }
 }
